@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lin.dao.MessageMapper" >
+  <resultMap id="BaseResultMap" type="com.lin.model.Message" >
+    <id column="message_id" property="messageId" jdbcType="INTEGER" />
+    <result column="realname" property="realname" jdbcType="VARCHAR" />
+    <result column="introduction" property="introduction" jdbcType="VARCHAR" />
+    <result column="profession" property="profession" jdbcType="VARCHAR" />
+    <result column="job" property="job" jdbcType="VARCHAR" />
+    <result column="birthday" property="birthday" jdbcType="TIMESTAMP" />
+    <result column="comeday" property="comeday" jdbcType="TIMESTAMP" />
+    <result column="qq" property="qq" jdbcType="INTEGER" />
+    <result column="phone" property="phone" jdbcType="INTEGER" />
+    <result column="head" property="head" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    message_id, realname, introduction, profession, job, birthday, comeday, qq, phone, 
+    head
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from message
+    where message_id = #{messageId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from message
+    where message_id = #{messageId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.lin.model.Message" >
+    insert into message (message_id, realname, introduction, 
+      profession, job, birthday, 
+      comeday, qq, phone, 
+      head)
+    values (#{messageId,jdbcType=INTEGER}, #{realname,jdbcType=VARCHAR}, #{introduction,jdbcType=VARCHAR}, 
+      #{profession,jdbcType=VARCHAR}, #{job,jdbcType=VARCHAR}, #{birthday,jdbcType=TIMESTAMP}, 
+      #{comeday,jdbcType=TIMESTAMP}, #{qq,jdbcType=INTEGER}, #{phone,jdbcType=INTEGER}, 
+      #{head,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.lin.model.Message" >
+    insert into message
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="messageId != null" >
+        message_id,
+      </if>
+      <if test="realname != null" >
+        realname,
+      </if>
+      <if test="introduction != null" >
+        introduction,
+      </if>
+      <if test="profession != null" >
+        profession,
+      </if>
+      <if test="job != null" >
+        job,
+      </if>
+      <if test="birthday != null" >
+        birthday,
+      </if>
+      <if test="comeday != null" >
+        comeday,
+      </if>
+      <if test="qq != null" >
+        qq,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="head != null" >
+        head,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="messageId != null" >
+        #{messageId,jdbcType=INTEGER},
+      </if>
+      <if test="realname != null" >
+        #{realname,jdbcType=VARCHAR},
+      </if>
+      <if test="introduction != null" >
+        #{introduction,jdbcType=VARCHAR},
+      </if>
+      <if test="profession != null" >
+        #{profession,jdbcType=VARCHAR},
+      </if>
+      <if test="job != null" >
+        #{job,jdbcType=VARCHAR},
+      </if>
+      <if test="birthday != null" >
+        #{birthday,jdbcType=TIMESTAMP},
+      </if>
+      <if test="comeday != null" >
+        #{comeday,jdbcType=TIMESTAMP},
+      </if>
+      <if test="qq != null" >
+        #{qq,jdbcType=INTEGER},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=INTEGER},
+      </if>
+      <if test="head != null" >
+        #{head,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.lin.model.Message" >
+    update message
+    <set >
+      <if test="realname != null" >
+        realname = #{realname,jdbcType=VARCHAR},
+      </if>
+      <if test="introduction != null" >
+        introduction = #{introduction,jdbcType=VARCHAR},
+      </if>
+      <if test="profession != null" >
+        profession = #{profession,jdbcType=VARCHAR},
+      </if>
+      <if test="job != null" >
+        job = #{job,jdbcType=VARCHAR},
+      </if>
+      <if test="birthday != null" >
+        birthday = #{birthday,jdbcType=TIMESTAMP},
+      </if>
+      <if test="comeday != null" >
+        comeday = #{comeday,jdbcType=TIMESTAMP},
+      </if>
+      <if test="qq != null" >
+        qq = #{qq,jdbcType=INTEGER},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=INTEGER},
+      </if>
+      <if test="head != null" >
+        head = #{head,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where message_id = #{messageId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.lin.model.Message" >
+    update message
+    set realname = #{realname,jdbcType=VARCHAR},
+      introduction = #{introduction,jdbcType=VARCHAR},
+      profession = #{profession,jdbcType=VARCHAR},
+      job = #{job,jdbcType=VARCHAR},
+      birthday = #{birthday,jdbcType=TIMESTAMP},
+      comeday = #{comeday,jdbcType=TIMESTAMP},
+      qq = #{qq,jdbcType=INTEGER},
+      phone = #{phone,jdbcType=INTEGER},
+      head = #{head,jdbcType=VARCHAR}
+    where message_id = #{messageId,jdbcType=INTEGER}
+  </update>
+</mapper>

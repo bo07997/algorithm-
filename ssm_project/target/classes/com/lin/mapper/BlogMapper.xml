@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lin.dao.BlogMapper" >
+  <resultMap id="BaseResultMap" type="com.lin.model.Blog" >
+    <id column="b_id" property="bId" jdbcType="INTEGER" />
+    <result column="b_title" property="bTitle" jdbcType="VARCHAR" />
+    <result column="introduction" property="introduction" jdbcType="VARCHAR" />
+    <result column="cate_id" property="cateId" jdbcType="INTEGER" />
+    <result column="read_times" property="readTimes" jdbcType="INTEGER" />
+    <result column="commont_times" property="commontTimes" jdbcType="INTEGER" />
+    <result column="commont_auth" property="commontAuth" jdbcType="BIT" />
+    <result column="create_year" property="createYear" jdbcType="DATE" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="home_blog" property="homeBlog" jdbcType="BIT" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.lin.model.Blog" extends="BaseResultMap" >
+    <result column="content" property="content" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    b_id,b_title, introduction, cate_id, read_times, commont_times, commont_auth, create_year, 
+    create_date,home_blog
+  </sql>
+  <sql id="Blob_Column_List" >
+    content
+  </sql>
+  
+  <select id="selectList" resultMap="ResultMapWithBLOBs" parameterType="String" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from blog
+    where   home_blog=1 and create_date > #{date,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from blog
+    where b_id = #{bId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from blog
+    where b_id = #{bId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.lin.model.Blog" >
+    insert into blog (b_id, introduction, cate_id, 
+      read_times, commont_times, commont_auth, 
+      create_year, create_date, content
+      )
+    values (#{bId,jdbcType=INTEGER}, #{introduction,jdbcType=VARCHAR}, #{cateId,jdbcType=INTEGER}, 
+      #{readTimes,jdbcType=INTEGER}, #{commontTimes,jdbcType=INTEGER}, #{commontAuth,jdbcType=BIT}, 
+      #{createYear,jdbcType=DATE}, #{createDate,jdbcType=TIMESTAMP}, #{content,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.lin.model.Blog" >
+    insert into blog
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="bId != null" >
+        b_id,
+      </if>
+      <if test="introduction != null" >
+        introduction,
+      </if>
+      <if test="cateId != null" >
+        cate_id,
+      </if>
+      <if test="readTimes != null" >
+        read_times,
+      </if>
+      <if test="commontTimes != null" >
+        commont_times,
+      </if>
+      <if test="commontAuth != null" >
+        commont_auth,
+      </if>
+      <if test="createYear != null" >
+        create_year,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="bId != null" >
+        #{bId,jdbcType=INTEGER},
+      </if>
+      <if test="introduction != null" >
+        #{introduction,jdbcType=VARCHAR},
+      </if>
+      <if test="cateId != null" >
+        #{cateId,jdbcType=INTEGER},
+      </if>
+      <if test="readTimes != null" >
+        #{readTimes,jdbcType=INTEGER},
+      </if>
+      <if test="commontTimes != null" >
+        #{commontTimes,jdbcType=INTEGER},
+      </if>
+      <if test="commontAuth != null" >
+        #{commontAuth,jdbcType=BIT},
+      </if>
+      <if test="createYear != null" >
+        #{createYear,jdbcType=DATE},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.lin.model.Blog" >
+    update blog
+    <set >
+      <if test="introduction != null" >
+        introduction = #{introduction,jdbcType=VARCHAR},
+      </if>
+      <if test="cateId != null" >
+        cate_id = #{cateId,jdbcType=INTEGER},
+      </if>
+      <if test="readTimes != null" >
+        read_times = #{readTimes,jdbcType=INTEGER},
+      </if>
+      <if test="commontTimes != null" >
+        commont_times = #{commontTimes,jdbcType=INTEGER},
+      </if>
+      <if test="commontAuth != null" >
+        commont_auth = #{commontAuth,jdbcType=BIT},
+      </if>
+      <if test="createYear != null" >
+        create_year = #{createYear,jdbcType=DATE},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="content != null" >
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where b_id = #{bId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.lin.model.Blog" >
+    update blog
+    set introduction = #{introduction,jdbcType=VARCHAR},
+      cate_id = #{cateId,jdbcType=INTEGER},
+      read_times = #{readTimes,jdbcType=INTEGER},
+      commont_times = #{commontTimes,jdbcType=INTEGER},
+      commont_auth = #{commontAuth,jdbcType=BIT},
+      create_year = #{createYear,jdbcType=DATE},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      content = #{content,jdbcType=LONGVARCHAR}
+    where b_id = #{bId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.lin.model.Blog" >
+    update blog
+    set introduction = #{introduction,jdbcType=VARCHAR},
+      cate_id = #{cateId,jdbcType=INTEGER},
+      read_times = #{readTimes,jdbcType=INTEGER},
+      commont_times = #{commontTimes,jdbcType=INTEGER},
+      commont_auth = #{commontAuth,jdbcType=BIT},
+      create_year = #{createYear,jdbcType=DATE},
+      create_date = #{createDate,jdbcType=TIMESTAMP}
+    where b_id = #{bId,jdbcType=INTEGER}
+  </update>
+</mapper>
