@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lin.dao.ReadIpMapper" >
+  <resultMap id="BaseResultMap" type="com.lin.model.ReadIp" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="b_id" property="bId" jdbcType="INTEGER" />
+    <result column="ip" property="ip" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, b_id, ip
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from read_ip
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <!--查询是否重复,返回对象  -->
+   <select id="selectByReadIp" resultMap="BaseResultMap" parameterType="com.lin.model.ReadIp" >
+    select 
+    <include refid="Base_Column_List" />
+    from read_ip
+    where b_Id = #{bId,jdbcType=INTEGER}  AND ip = #{ip,jdbcType=VARCHAR} 
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from read_ip
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.lin.model.ReadIp" >
+    insert into read_ip (id, b_id, ip)
+    values (#{id,jdbcType=INTEGER}, #{bId,jdbcType=INTEGER}, #{ip,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.lin.model.ReadIp" >
+    insert into read_ip
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null and id != 0" >
+        id,
+      </if>
+      <if test="bId != null and bId != 0" >
+        b_id,
+      </if>
+      <if test="ip != null" >
+        ip,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null and id != 0" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="bId != null and bId != 0" >
+        #{bId,jdbcType=INTEGER},
+      </if>
+      <if test="ip != null" >
+        #{ip,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.lin.model.ReadIp" >
+    update read_ip
+    <set >
+      <if test="bId != null" >
+        b_id = #{bId,jdbcType=INTEGER},
+      </if>
+      <if test="ip != null" >
+        ip = #{ip,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.lin.model.ReadIp" >
+    update read_ip
+    set b_id = #{bId,jdbcType=INTEGER},
+      ip = #{ip,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,2 +1,4 @@
+com\lin\service\RedisJava.class
 com\lin\service\TestMybatis.class
+com\lin\service\testdate.class
 com\lin\baseTest\SpringTestCase.class

@@ -11,6 +11,7 @@ public class User {
 
     private int messageid;
 
+    private int rootAuth;
     public int getuId() {
         return uId;
     }
@@ -51,10 +52,19 @@ public class User {
         this.messageid = messageid;
     }
 
+	public int getRootAuth() {
+		return rootAuth;
+	}
+
+	public void setRootAuth(int rootAuth) {
+		this.rootAuth = rootAuth;
+	}
+
 	@Override
 	public String toString() {
 		return "User [uId=" + uId + ", name=" + name + ", username=" + username + ", password=" + password
-				+ ", messageid=" + messageid + "]";
+				+ ", messageid=" + messageid + ", rootAuth=" + rootAuth + "]";
 	}
-    
+
+
 }

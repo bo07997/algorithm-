@@ -3,5 +3,6 @@ encoding//src/main/webapp/WEB-INF/view/index.jsp=UTF-8
 encoding//src/main/webapp/WEB-INF/view/manager.jsp=UTF-8
 encoding//src/main/webapp/WEB-INF/view/oneblog.jsp=UTF-8
 encoding//src/main/webapp/WEB-INF/view/our_home.jsp=UTF-8
-encoding//src/main/webapp/resources/markdown/creatwiMarkdown.jsp=UTF-8
+encoding//src/main/webapp/WEB-INF/view/uediter/u_editer.jsp=UTF-8
+encoding//src/main/webapp/WEB-INF/view/uediter/updateInUedite.jsp=UTF-8
 encoding/<project>=UTF-8

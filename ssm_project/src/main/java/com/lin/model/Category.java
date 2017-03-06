@@ -5,13 +5,12 @@ import java.util.Date;
 public class Category {
     private int cId;
 
-    private int cateId;
+    private int uId;
 
     private String cateName;
 
-    private Byte blogCount;
+    private int blogCount;
 
-    private Date createYear;
 
     private Date createDate;
 
@@ -23,12 +22,12 @@ public class Category {
         this.cId = cId;
     }
 
-    public int getCateId() {
-        return cateId;
+    public int getuId() {
+        return uId;
     }
 
-    public void setCateId(int cateId) {
-        this.cateId = cateId;
+    public void setuId(int uId) {
+        this.uId = uId;
     }
 
     public String getCateName() {
@@ -39,21 +38,14 @@ public class Category {
         this.cateName = cateName == null ? null : cateName.trim();
     }
 
-    public Byte getBlogCount() {
+    public int getBlogCount() {
         return blogCount;
     }
 
-    public void setBlogCount(Byte blogCount) {
+    public void setBlogCount(int blogCount) {
         this.blogCount = blogCount;
     }
 
-    public Date getCreateYear() {
-        return createYear;
-    }
-
-    public void setCreateYear(Date createYear) {
-        this.createYear = createYear;
-    }
 
     public Date getCreateDate() {
         return createDate;

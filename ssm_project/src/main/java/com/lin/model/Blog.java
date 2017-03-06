@@ -3,8 +3,11 @@ package com.lin.model;
 import java.util.Date;
 
 public class Blog {
+	
     private int bId;
 
+    private int uId;
+    
     private String introduction;
     
     private String bTitle;
@@ -17,13 +20,20 @@ public class Blog {
 
     private Boolean commontAuth;
 
-    private Date createYear;
+    private String  dayChinese;
 
     private Date createDate;
 
     private String content;
 
     private Boolean homeBlog;
+    
+    private int up;
+    
+    private int down;
+    
+    private String cateCsdn;
+    
     public int getbId() {
         return bId;
     }
@@ -33,7 +43,15 @@ public class Blog {
     }
 
     
-    public String getbTitle() {
+    public int getuId() {
+		return uId;
+	}
+
+	public void setuId(int uId) {
+		this.uId = uId;
+	}
+
+	public String getbTitle() {
 		return bTitle;
 	}
 
@@ -81,15 +99,17 @@ public class Blog {
         this.commontAuth = commontAuth;
     }
 
-    public Date getCreateYear() {
-        return createYear;
-    }
 
-    public void setCreateYear(Date createYear) {
-        this.createYear = createYear;
-    }
 
-    public Date getCreateDate() {
+    public String getDayChinese() {
+		return dayChinese;
+	}
+
+	public void setDayChinese(String dayChinese) {
+		this.dayChinese = dayChinese;
+	}
+
+	public Date getCreateDate() {
         return createDate;
     }
 
@@ -113,14 +133,42 @@ public class Blog {
 		this.homeBlog = homeBlog;
 	}
 
-	@Override
-	public String toString() {
-		return "Blog [bId=" + bId + ", introduction=" + introduction + ", bTitle=" + bTitle + ", cateId=" + cateId
-				+ ", readTimes=" + readTimes + ", commontTimes=" + commontTimes + ", commontAuth=" + commontAuth
-				+ ", createYear=" + createYear + ", createDate=" + createDate + ", content=" + content + ", homeBlog="
-				+ homeBlog + "]";
+	public int getUp() {
+		return up;
 	}
 
-	
+	public void setUp(int up) {
+		this.up = up;
+	}
+
+	public int getDown() {
+		return down;
+	}
+
+	public void setDown(int down) {
+		this.down = down;
+	}
+
+	public String getCateCsdn() {
+		return cateCsdn;
+	}
+
+	public void setCateCsdn(String cateCsdn) {
+		this.cateCsdn = cateCsdn;
+	}
+
+	@Override
+	public String toString() {
+		return "Blog [bId=" + bId + ", uId=" + uId + ", introduction=" + introduction + ", bTitle=" + bTitle
+				+ ", cateId=" + cateId + ", readTimes=" + readTimes + ", commontTimes=" + commontTimes
+				+ ", commontAuth=" + commontAuth + ", dayChinese=" + dayChinese + ", createDate=" + createDate
+				+ ", content=" + content + ", homeBlog=" + homeBlog + ", up=" + up + ", down=" + down + ", cateCsdn="
+				+ cateCsdn + "]";
+	}
+
+
+
+
+
     
 }

@@ -13,7 +13,7 @@ public interface MessageMapper {
 
     Message selectByPrimaryKey(int messageId);
 
-    int updateByPrimaryKeySelective(Message record);
+    boolean updateByPrimaryKeySelective(Message message);
 
     int updateByPrimaryKey(Message record);
 }

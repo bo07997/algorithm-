@@ -1,16 +1,16 @@
 -------------------------------------------------------------------------------
 Test set: com.lin.service.TestMybatis
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 2.501 sec <<< FAILURE!
-test1(com.lin.service.TestMybatis)  Time elapsed: 2.295 sec  <<< ERROR!
-org.apache.ibatis.binding.BindingException: Invalid bound statement (not found): com.lin.dao.BlogMapper.selectList
+Tests run: 2, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 2.411 sec <<< FAILURE!
+test1(com.lin.service.TestMybatis)  Time elapsed: 2.237 sec  <<< ERROR!
+org.apache.ibatis.binding.BindingException: Invalid bound statement (not found): com.lin.dao.CommentMapper.selectBybId
 	at org.apache.ibatis.binding.MapperMethod$SqlCommand.<init>(MapperMethod.java:178)
 	at org.apache.ibatis.binding.MapperMethod.<init>(MapperMethod.java:38)
 	at org.apache.ibatis.binding.MapperProxy.cachedMapperMethod(MapperProxy.java:49)
 	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:42)
-	at com.sun.proxy.$Proxy14.selectList(Unknown Source)
-	at com.lin.service.impl.BlogServiceimpl.getHomeList(BlogServiceimpl.java:29)
-	at com.lin.service.TestMybatis.test1(TestMybatis.java:49)
+	at com.sun.proxy.$Proxy16.selectBybId(Unknown Source)
+	at com.lin.service.impl.CommentServiceimpl.getComment(CommentServiceimpl.java:23)
+	at com.lin.service.TestMybatis.test1(TestMybatis.java:68)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -45,7 +45,7 @@ org.apache.ibatis.binding.BindingException: Invalid bound statement (not found):
 	at org.apache.maven.surefire.booter.ProviderFactory.invokeProvider(ProviderFactory.java:85)
 	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:115)
 	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:75)
-Caused by: java.lang.IllegalArgumentException: Mapped Statements collection does not contain value for com.lin.dao.BlogMapper.selectList
+Caused by: java.lang.IllegalArgumentException: Mapped Statements collection does not contain value for com.lin.dao.CommentMapper.selectBybId
 	at org.apache.ibatis.session.Configuration$StrictMap.get(Configuration.java:768)
 	at org.apache.ibatis.session.Configuration.getMappedStatement(Configuration.java:603)
 	at org.apache.ibatis.session.Configuration.getMappedStatement(Configuration.java:596)

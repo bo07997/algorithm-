@@ -7,9 +7,10 @@
     <result column="username" property="username" jdbcType="VARCHAR" />
     <result column="password" property="password" jdbcType="VARCHAR" />
     <result column="messageid" property="messageid" jdbcType="INTEGER" />
+    <result column="root_auth" property="rootAuth" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Base_Column_List" >
-    u_id, name, username, password, messageid
+    u_id, name, username, password, messageid,root_auth
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
@@ -17,23 +18,64 @@
     from user
     where u_id = #{uId,jdbcType=INTEGER}
   </select>
-  
-  <select id="selectByUsername" resultMap="BaseResultMap" parameterType="String" >
+  <!-- 查询全部用户 -->
+  <select id="selectAlluser" resultMap="BaseResultMap"  >
     select 
     <include refid="Base_Column_List" />
+    from user order by u_id;
+  </select>
+    <!-- 查询全部用户及其信息 -->
+  <select id="selectAlluser_message" resultType="java.util.Map" >
+  SELECT a.u_id as uId,a.name as name,
+a.username as username,a.password as password,
+b.job as job,b.phone as phone FROM `user` as a LEFT JOIN 
+message as b on a.messageid = b.message_id where root_auth = 0;
+  </select>
+     <!-- 查询全部管理员及其信息 -->
+  <select id="selectAllroot_message" resultType="java.util.Map" >
+  SELECT a.u_id as uId,a.name as name,
+a.username as username,a.password as password,
+b.job as job,b.phone as phone FROM `user` as a LEFT JOIN 
+message as b on a.messageid = b.message_id where root_auth = 1;
+  </select>
+   <select id="selectUserByUser" resultMap="BaseResultMap" parameterType="com.lin.model.User" >
+    select 
+    <include refid="Base_Column_List" />
+    from user
+    where username= #{username,jdbcType=VARCHAR} AND
+    root_auth= #{rootAuth,jdbcType=INTEGER}
+  </select>
+  
+   <select id="selectByUsername" resultMap="BaseResultMap" parameterType="String" >
+    select 
+    <include refid="Base_Column_List" />
+    from user
+    where username= #{username,jdbcType=VARCHAR} 
+  </select>
+  
+  <!-- 查询用户名是否存在，返回该用户名 -->
+   <select id="selectUNByUN" resultType="String" parameterType="String" >
+    select 
+    username
     from user
     where username= #{username,jdbcType=VARCHAR}
   </select>
   
+  <!-- 查询用户技能等信息 -->
+  <select id="selectSkill" resultType="java.util.Map" parameterType="java.lang.Integer" >
+    select  b.infoId,b.content,b.type FROM user a left join message_info b 
+    on  a.u_id=b.uid
+    where  b.uid= #{uId,jdbcType=INTEGER}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from user
     where u_id = #{uId,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.lin.model.User" >
-    insert into user (u_id, name, username, 
-      password, messageid)
-    values (#{uId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, 
-      #{password,jdbcType=VARCHAR}, #{messageid,jdbcType=INTEGER})
+    insert into user ( name, username, 
+      password,root_auth)
+    values ( #{name,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, 
+      #{password,jdbcType=VARCHAR},#{rootAuth,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.lin.model.User" >
     insert into user
@@ -53,6 +95,9 @@
       <if test="messageid != null" >
         messageid,
       </if>
+      <if test="rootAuth != null" >
+        root_auth,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="uId != null" >
@@ -70,8 +115,28 @@
       <if test="messageid != null" >
         #{messageid,jdbcType=INTEGER},
       </if>
+      <if test="rootAuth != null" >
+        #{rootAuth,jdbcType=INTEGER},
+      </if>
     </trim>
   </insert>
+  
+  <!-- 插入messageid -->
+  <update id="updateMid" parameterType="java.lang.Integer" >
+    update user
+    set 
+      messageid = #{uid,jdbcType=INTEGER}
+    where u_id = #{uid,jdbcType=INTEGER}
+  </update>
+    <!-- 更新管理员及其信息 -->
+  <update id="update_root" parameterType="com.lin.model.v2model.Root_message" >
+  UPDATE `user`,message
+   SET `user`.name =#{user.name,jdbcType=VARCHAR},
+`user`.`password` =#{user.password,jdbcType=VARCHAR},
+message.phone =#{contact,jdbcType=VARCHAR} ,message.job =#{job,jdbcType=VARCHAR}
+ WHERE
+`user`.u_id =#{user.uId,jdbcType=INTEGER} AND message.message_id =#{user.uId,jdbcType=INTEGER};
+  </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.lin.model.User" >
     update user
     <set >
@@ -84,8 +149,11 @@
       <if test="password != null" >
         password = #{password,jdbcType=VARCHAR},
       </if>
-      <if test="messageid != null" >
+      <if test="messageid != null and messageid != 0" >
         messageid = #{messageid,jdbcType=INTEGER},
+      </if>
+         <if test="rootAuth != null " >
+        root_auth = #{rootAuth,jdbcType=INTEGER},
       </if>
     </set>
     where u_id = #{uId,jdbcType=INTEGER}
@@ -96,6 +164,7 @@
       username = #{username,jdbcType=VARCHAR},
       password = #{password,jdbcType=VARCHAR},
       messageid = #{messageid,jdbcType=INTEGER}
+       root_auth = #{rootAuth,jdbcType=INTEGER}
     where u_id = #{uId,jdbcType=INTEGER}
   </update>
 </mapper>

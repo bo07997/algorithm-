@@ -3,36 +3,81 @@
 <mapper namespace="com.lin.dao.BlogMapper" >
   <resultMap id="BaseResultMap" type="com.lin.model.Blog" >
     <id column="b_id" property="bId" jdbcType="INTEGER" />
+    <result column="u_id" property="uId" jdbcType="INTEGER" />
     <result column="b_title" property="bTitle" jdbcType="VARCHAR" />
     <result column="introduction" property="introduction" jdbcType="VARCHAR" />
     <result column="cate_id" property="cateId" jdbcType="INTEGER" />
     <result column="read_times" property="readTimes" jdbcType="INTEGER" />
     <result column="commont_times" property="commontTimes" jdbcType="INTEGER" />
     <result column="commont_auth" property="commontAuth" jdbcType="BIT" />
-    <result column="create_year" property="createYear" jdbcType="DATE" />
+    <result column="day_chinese" property="dayChinese" jdbcType="VARCHAR" />
     <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
     <result column="home_blog" property="homeBlog" jdbcType="BIT" />
+    <result column="up" property="up" jdbcType="INTEGER" />
+    <result column="down" property="down" jdbcType="INTEGER" />
+    <result column="cate_csdn" property="cateCsdn" jdbcType="VARCHAR" />
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.lin.model.Blog" extends="BaseResultMap" >
     <result column="content" property="content" jdbcType="LONGVARCHAR" />
   </resultMap>
+  
   <sql id="Base_Column_List" >
-    b_id,b_title, introduction, cate_id, read_times, commont_times, commont_auth, create_year, 
-    create_date,home_blog
+    b_id,u_id,b_title, introduction, cate_id, read_times, commont_times, commont_auth, day_chinese, 
+     create_date,home_blog,up,down,cate_csdn
   </sql>
   <sql id="Blob_Column_List" >
     content
   </sql>
-  
-  <select id="selectList" resultMap="ResultMapWithBLOBs" parameterType="String" >
+
+ <!-- 选择所有user的所有博客 -->
+  <select id="select_all_users_List" resultMap="ResultMapWithBLOBs" parameterType="String" >
     select 
-    <include refid="Base_Column_List" />
+   <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from blog
-    where   home_blog=1 and create_date > #{date,jdbcType=VARCHAR}
+    from blog order by create_date DESC;
+  </select>
+  <!-- 选择主页的blogs，一定时间后 -->
+  <select id="selectList" resultType="java.util.Map" parameterType="String" >
+  SELECT b.b_id as bId,
+b.u_id as uId,
+b.b_title as bTitle,
+b.introduction as introduction,
+b.cate_csdn as cateCsdn,
+b.day_chinese as day_chinese,
+b.commont_times as commont_times,
+m.message_id as meaasgeId,
+m.realname as realname,
+m.head as head 
+FROM blog as b INNER JOIN message as m
+on b.u_id=m.message_id
+    where   b.home_blog=1 and b.create_date > #{date,jdbcType=VARCHAR} order by create_date DESC;
   </select>
   
+  <!-- 选择主页的blogs，一定时间和类别 -->
+  <select id="selectHomeListAndcate" resultType="java.util.Map" parameterType="java.util.Map" >
+SELECT b.b_id as bId,
+b.u_id as uId,
+b.b_title as bTitle,
+b.introduction as introduction,
+b.cate_csdn as cateCsdn,
+b.day_chinese as day_chinese,
+b.commont_times as commont_times,
+m.message_id as meaasgeId,
+m.realname as realname,
+m.head as head 
+FROM blog as b INNER JOIN message as m
+on b.u_id=m.message_id
+    where   b.home_blog=1
+     <if test="time != null" >
+        and b.create_date > #{time,jdbcType=VARCHAR} 
+      </if>
+      <if test="csdn_cate != null" >
+        and b.cate_csdn = #{csdn_cate,jdbcType=VARCHAR} 
+      </if>
+    order by create_date DESC;
+  </select>
+  <!-- 选择博文通过bId -->
   <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
     select 
     <include refid="Base_Column_List" />
@@ -41,30 +86,174 @@
     from blog
     where b_id = #{bId,jdbcType=INTEGER}
   </select>
+
+  <!--选择某个uId的博文，并且按年月分组  -->
+   <select id="selectMapList" resultType="com.lin.model.v2model.Blogv2" parameterType="java.lang.Integer" >
+    select 
+    date_format(create_date,'%Y年%m月') as createDate   ,count(*) as sum
+    from blog
+    where u_id = #{uId,jdbcType=INTEGER}  GROUP BY date_format(create_date,'%Y-%m') DESC;
+  </select>
+  
+  <!--选择某个uId的阅读次数，标题，bId，并且按次数排序  -->
+   <select id="selectreadTimesList" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    read_times,b_title,b_id
+    from blog
+    where u_id = #{uId,jdbcType=INTEGER}  ORDER BY read_times DESC;
+  </select> 
+  
+  <!-- 按评论排序选择博文 -->
+  <select id="selectcommonsTimesList" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    commont_times,b_title,b_id
+    from blog
+    where u_id = #{uId,jdbcType=INTEGER}  ORDER BY commont_times DESC;
+  </select> 
+  
+  <!--  选择某个uId的全部博文，按时间排序-->
+  <select id="selectallList" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+   <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from blog
+    where u_id = #{uId,jdbcType=INTEGER}  ORDER BY create_date DESC;
+  </select>
+  
+  <!-- 按照分类选择某个博主的博文 -->
+   <select id="selectcateList" resultMap="ResultMapWithBLOBs" parameterType="java.util.Map" >
+    select 
+  b_id,b.u_id,b_title, introduction, cate_id, read_times, commont_times, commont_auth, day_chinese,    
+     b.create_date,home_blog,up,down  ,  content
+    from
+   blog AS b LEFT JOIN category as c  on b.u_id=c.u_id WHERE  
+    b.u_id = #{uId,jdbcType=INTEGER}  AND b.cate_id=#{cId,jdbcType=INTEGER} GROUP BY b.b_id
+     ORDER BY create_date DESC;
+  </select>
+  
+    <!-- 按照年月选择某个博主的博文 -->
+   <select id="seleteblogsByDate" resultMap="ResultMapWithBLOBs" parameterType="java.util.Map" >
+    select 
+ <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from
+   blog WHERE  
+    u_id = #{uId}  AND date_format(create_date,'%Y年%m月')=#{date}
+     ORDER BY create_date DESC;
+  </select>
+  
+     <!-- 动态查看所有表的博文 -->
+  <select id="selectcontByMap" resultMap="ResultMapWithBLOBs" parameterType="java.util.Map" >
+    select 
+   <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from ${table}
+    where b_id = #{bId,jdbcType=INTEGER}  ORDER BY create_date DESC;
+  </select>
+     <!-- 查询所有待审核博客 -->
+  <select id="select_all_users_rootList" resultMap="ResultMapWithBLOBs" >
+    select 
+   <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from root_blog
+    ORDER BY create_date DESC;
+  </select>
+   <!-- 查看回收站博文 -->
+  <select id="selectreblogList" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+   <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from reblog
+    where u_id = #{uId,jdbcType=INTEGER}  ORDER BY create_date DESC;
+  </select>
+  
+  <!-- 查看草稿箱博文 -->
+  <select id="selectdraftblogList" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+   <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from draftblog
+    where u_id = #{uId,jdbcType=INTEGER}  ORDER BY create_date DESC;
+  </select>
+  
+  <!-- 通过bId查看待审核博文 -->
+  <select id="select_root_blog" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+   <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from root_blog
+    where b_id = #{bId,jdbcType=INTEGER}  ;
+  </select>
+  <!-- 查询总评论次数 -->
+   <select id="selectAllCommentTimes" resultType="java.lang.Integer" parameterType="java.lang.Integer" >
+    select 
+    sum(commont_times)
+    from blog
+    where u_id = #{uId,jdbcType=INTEGER} ;
+  </select> 
+  <!--删除博文通过bId  -->
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from blog
     where b_id = #{bId,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.lin.model.Blog" >
-    insert into blog (b_id, introduction, cate_id, 
-      read_times, commont_times, commont_auth, 
-      create_year, create_date, content
+    <!--删除待审核博文通过bId  -->
+  <delete id="deleteByPrimaryKey_rootblog" parameterType="java.lang.Integer" >
+    delete from root_blog
+    where b_id = #{bId,jdbcType=INTEGER}
+  </delete>
+  <!--删除草稿博文通过bId  -->
+  <delete id="deleteByPrimaryKey_draftblog" parameterType="java.lang.Integer" >
+    delete from draftblog
+    where b_id = #{bId,jdbcType=INTEGER}
+  </delete>
+   <!--删除待审核博文通过bId  -->
+  <delete id="deleteroot_BlogBybId" parameterType="java.lang.Integer" >
+    delete from root_blog
+    where b_id = #{bId,jdbcType=INTEGER}
+  </delete>
+    <!--删除回收站博文通过bId  -->
+  <delete id="deleteByPrimaryKey_reblog" parameterType="java.lang.Integer" >
+    delete from reblog
+    where b_id = #{bId,jdbcType=INTEGER}
+  </delete>
+  
+ <insert id="insert" parameterType="com.lin.model.Blog" >
+    insert into blog (b_id, u_id, b_title, 
+      introduction, cate_id, read_times, 
+      commont_times, commont_auth, day_chinese, 
+      create_date, home_blog, up, 
+      down, cate_csdn, content
       )
-    values (#{bId,jdbcType=INTEGER}, #{introduction,jdbcType=VARCHAR}, #{cateId,jdbcType=INTEGER}, 
-      #{readTimes,jdbcType=INTEGER}, #{commontTimes,jdbcType=INTEGER}, #{commontAuth,jdbcType=BIT}, 
-      #{createYear,jdbcType=DATE}, #{createDate,jdbcType=TIMESTAMP}, #{content,jdbcType=LONGVARCHAR}
+    values (#{bId,jdbcType=INTEGER}, #{uId,jdbcType=INTEGER}, #{bTitle,jdbcType=VARCHAR}, 
+      #{introduction,jdbcType=VARCHAR}, #{cateId,jdbcType=INTEGER}, #{readTimes,jdbcType=INTEGER}, 
+      #{commontTimes,jdbcType=INTEGER}, #{commontAuth,jdbcType=BIT}, #{dayChinese,jdbcType=VARCHAR}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{homeBlog,jdbcType=BIT}, #{up,jdbcType=INTEGER}, 
+      #{down,jdbcType=INTEGER}, #{cateCsdn,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.lin.model.Blog" >
     insert into blog
     <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="bId != null" >
+      <if test="bId != null and bId != 0" >
         b_id,
+      </if>
+      <if test="uId != null" >
+        u_id,
+      </if>
+      <if test="bTitle != null" >
+        b_title,
       </if>
       <if test="introduction != null" >
         introduction,
       </if>
-      <if test="cateId != null" >
+      <if test="cateId != null and cateId != 0" >
         cate_id,
       </if>
       <if test="readTimes != null" >
@@ -76,24 +265,42 @@
       <if test="commontAuth != null" >
         commont_auth,
       </if>
-      <if test="createYear != null" >
-        create_year,
+      <if test="dayChinese != null" >
+        day_chinese,
       </if>
       <if test="createDate != null" >
         create_date,
+      </if>
+      <if test="homeBlog != null" >
+        home_blog,
+      </if>
+      <if test="up != null" >
+        up,
+      </if>
+      <if test="down != null" >
+        down,
+      </if>
+      <if test="cateCsdn != null " >
+        cate_csdn,
       </if>
       <if test="content != null" >
         content,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="bId != null" >
+      <if test="bId != null and bId != 0" >
         #{bId,jdbcType=INTEGER},
+      </if>
+      <if test="uId != null" >
+        #{uId,jdbcType=INTEGER},
+      </if>
+      <if test="bTitle != null" >
+        #{bTitle,jdbcType=VARCHAR},
       </if>
       <if test="introduction != null" >
         #{introduction,jdbcType=VARCHAR},
       </if>
-      <if test="cateId != null" >
+      <if test="cateId != null and cateId != 0" >
         #{cateId,jdbcType=INTEGER},
       </if>
       <if test="readTimes != null" >
@@ -105,40 +312,289 @@
       <if test="commontAuth != null" >
         #{commontAuth,jdbcType=BIT},
       </if>
-      <if test="createYear != null" >
-        #{createYear,jdbcType=DATE},
+      <if test="dayChinese != null" >
+        #{dayChinese,jdbcType=VARCHAR},
       </if>
       <if test="createDate != null" >
         #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="homeBlog != null" >
+        #{homeBlog,jdbcType=BIT},
+      </if>
+      <if test="up != null" >
+        #{up,jdbcType=INTEGER},
+      </if>
+      <if test="down != null" >
+        #{down,jdbcType=INTEGER},
+      </if>
+      <if test="cateCsdn != null " >
+        #{cateCsdn,jdbcType=VARCHAR},
       </if>
       <if test="content != null" >
         #{content,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
+  
+  <insert id="insertSelective_root" parameterType="com.lin.model.Blog" >
+    insert into root_blog
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="bId != null and bId != 0" >
+        b_id,
+      </if>
+      <if test="uId != null" >
+        u_id,
+      </if>
+      <if test="bTitle != null" >
+        b_title,
+      </if>
+      <if test="introduction != null" >
+        introduction,
+      </if>
+      <if test="cateId != null and cateId != 0" >
+        cate_id,
+      </if>
+      <if test="readTimes != null" >
+        read_times,
+      </if>
+      <if test="commontTimes != null" >
+        commont_times,
+      </if>
+      <if test="commontAuth != null" >
+        commont_auth,
+      </if>
+      <if test="dayChinese != null" >
+        day_chinese,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="homeBlog != null" >
+        home_blog,
+      </if>
+      <if test="up != null" >
+        up,
+      </if>
+      <if test="down != null" >
+        down,
+      </if>
+      <if test="cateCsdn != null " >
+        cate_csdn,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="bId != null and bId != 0" >
+        #{bId,jdbcType=INTEGER},
+      </if>
+      <if test="uId != null" >
+        #{uId,jdbcType=INTEGER},
+      </if>
+      <if test="bTitle != null" >
+        #{bTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="introduction != null" >
+        #{introduction,jdbcType=VARCHAR},
+      </if>
+      <if test="cateId != null and cateId != 0" >
+        #{cateId,jdbcType=INTEGER},
+      </if>
+      <if test="readTimes != null" >
+        #{readTimes,jdbcType=INTEGER},
+      </if>
+      <if test="commontTimes != null" >
+        #{commontTimes,jdbcType=INTEGER},
+      </if>
+      <if test="commontAuth != null" >
+        #{commontAuth,jdbcType=BIT},
+      </if>
+      <if test="dayChinese != null" >
+        #{dayChinese,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="homeBlog != null" >
+        #{homeBlog,jdbcType=BIT},
+      </if>
+      <if test="up != null" >
+        #{up,jdbcType=INTEGER},
+      </if>
+      <if test="down != null" >
+        #{down,jdbcType=INTEGER},
+      </if>
+      <if test="cateCsdn != null " >
+        #{cateCsdn,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 插入到草稿箱 -->
+  <insert id="insertSelective_draft_blog" parameterType="com.lin.model.Blog" >
+    insert into draftblog
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="bId != null and bId != 0" >
+        b_id,
+      </if>
+      <if test="uId != null" >
+        u_id,
+      </if>
+      <if test="bTitle != null" >
+        b_title,
+      </if>
+      <if test="introduction != null" >
+        introduction,
+      </if>
+      <if test="cateId != null and cateId != 0" >
+        cate_id,
+      </if>
+      <if test="readTimes != null" >
+        read_times,
+      </if>
+      <if test="commontTimes != null" >
+        commont_times,
+      </if>
+      <if test="commontAuth != null" >
+        commont_auth,
+      </if>
+      <if test="dayChinese != null" >
+        day_chinese,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="homeBlog != null" >
+        home_blog,
+      </if>
+      <if test="up != null" >
+        up,
+      </if>
+      <if test="down != null" >
+        down,
+      </if>
+      <if test="cateCsdn != null " >
+        cate_csdn,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="bId != null and bId != 0" >
+        #{bId,jdbcType=INTEGER},
+      </if>
+      <if test="uId != null" >
+        #{uId,jdbcType=INTEGER},
+      </if>
+      <if test="bTitle != null" >
+        #{bTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="introduction != null" >
+        #{introduction,jdbcType=VARCHAR},
+      </if>
+      <if test="cateId != null and cateId != 0" >
+        #{cateId,jdbcType=INTEGER},
+      </if>
+      <if test="readTimes != null" >
+        #{readTimes,jdbcType=INTEGER},
+      </if>
+      <if test="commontTimes != null" >
+        #{commontTimes,jdbcType=INTEGER},
+      </if>
+      <if test="commontAuth != null" >
+        #{commontAuth,jdbcType=BIT},
+      </if>
+      <if test="dayChinese != null" >
+        #{dayChinese,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="homeBlog != null" >
+        #{homeBlog,jdbcType=BIT},
+      </if>
+      <if test="up != null" >
+        #{up,jdbcType=INTEGER},
+      </if>
+      <if test="down != null" >
+        #{down,jdbcType=INTEGER},
+      </if>
+      <if test="cateCsdn != null " >
+        #{cateCsdn,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <!--修改博客所属分类  -->
+  <update id="updateCateId" parameterType="com.lin.model.v2model.Blog_table" >
+    update ${table}
+    <set >   
+      <if test="cId != null and cId != 0" >
+        cate_id = #{cId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where b_id = #{bId,jdbcType=INTEGER}
+  </update>
+  
+   <!--修改博客评论权限  -->
+  <update id="updatecommonauth" parameterType="com.lin.model.v2model.Blog_table" >
+    update ${table}
+    <set >   
+       <if test="commontAuth != null" >
+        commont_auth = #{commontAuth,jdbcType=BIT},
+      </if>
+    </set>
+    where b_id = #{bId,jdbcType=INTEGER}
+  </update>
+  
   <update id="updateByPrimaryKeySelective" parameterType="com.lin.model.Blog" >
     update blog
     <set >
+      <if test="uId != null " >
+        u_id = #{uId,jdbcType=INTEGER},
+      </if>
+      <if test="bTitle != null" >
+        b_title = #{bTitle,jdbcType=VARCHAR},
+      </if>
       <if test="introduction != null" >
         introduction = #{introduction,jdbcType=VARCHAR},
       </if>
-      <if test="cateId != null" >
+      <if test="cateId != null and cateId != 0" >
         cate_id = #{cateId,jdbcType=INTEGER},
       </if>
-      <if test="readTimes != null" >
+      <if test="readTimes != null and readTimes != 0" >
         read_times = #{readTimes,jdbcType=INTEGER},
       </if>
-      <if test="commontTimes != null" >
+      <if test="commontTimes != null and commontTimes != 0" >
         commont_times = #{commontTimes,jdbcType=INTEGER},
       </if>
       <if test="commontAuth != null" >
         commont_auth = #{commontAuth,jdbcType=BIT},
       </if>
-      <if test="createYear != null" >
-        create_year = #{createYear,jdbcType=DATE},
+      <if test="dayChinese != null" >
+        day_chinese = #{dayChinese,jdbcType=VARCHAR},
       </if>
       <if test="createDate != null" >
         create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="homeBlog != null" >
+        home_blog = #{homeBlog,jdbcType=BIT},
+      </if>
+      <if test="up != null and up!=0" >
+        up = #{up,jdbcType=INTEGER},
+      </if>
+      <if test="down != null and down != 0" >
+        down = #{down,jdbcType=INTEGER},
+      </if>
+      <if test="cateCsdn != null" >
+        cate_csdn = #{cateCsdn,jdbcType=VARCHAR},
       </if>
       <if test="content != null" >
         content = #{content,jdbcType=LONGVARCHAR},
@@ -148,25 +604,37 @@
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.lin.model.Blog" >
     update blog
-    set introduction = #{introduction,jdbcType=VARCHAR},
+    set u_id = #{uId,jdbcType=INTEGER},
+      b_title = #{bTitle,jdbcType=VARCHAR},
+      introduction = #{introduction,jdbcType=VARCHAR},
       cate_id = #{cateId,jdbcType=INTEGER},
       read_times = #{readTimes,jdbcType=INTEGER},
       commont_times = #{commontTimes,jdbcType=INTEGER},
       commont_auth = #{commontAuth,jdbcType=BIT},
-      create_year = #{createYear,jdbcType=DATE},
+      day_chinese = #{dayChinese,jdbcType=VARCHAR},
       create_date = #{createDate,jdbcType=TIMESTAMP},
+      home_blog = #{homeBlog,jdbcType=BIT},
+      up = #{up,jdbcType=INTEGER},
+      down = #{down,jdbcType=INTEGER},
+      cate_csdn = #{cateCsdn,jdbcType=VARCHAR},
       content = #{content,jdbcType=LONGVARCHAR}
     where b_id = #{bId,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.lin.model.Blog" >
     update blog
-    set introduction = #{introduction,jdbcType=VARCHAR},
+    set u_id = #{uId,jdbcType=INTEGER},
+      b_title = #{bTitle,jdbcType=VARCHAR},
+      introduction = #{introduction,jdbcType=VARCHAR},
       cate_id = #{cateId,jdbcType=INTEGER},
       read_times = #{readTimes,jdbcType=INTEGER},
       commont_times = #{commontTimes,jdbcType=INTEGER},
       commont_auth = #{commontAuth,jdbcType=BIT},
-      create_year = #{createYear,jdbcType=DATE},
-      create_date = #{createDate,jdbcType=TIMESTAMP}
+      day_chinese = #{dayChinese,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      home_blog = #{homeBlog,jdbcType=BIT},
+      up = #{up,jdbcType=INTEGER},
+      down = #{down,jdbcType=INTEGER},
+      cate_csdn = #{cateCsdn,jdbcType=VARCHAR}
     where b_id = #{bId,jdbcType=INTEGER}
   </update>
 </mapper>

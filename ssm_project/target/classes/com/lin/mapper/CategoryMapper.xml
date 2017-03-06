@@ -3,14 +3,13 @@
 <mapper namespace="com.lin.dao.CategoryMapper" >
   <resultMap id="BaseResultMap" type="com.lin.model.Category" >
     <id column="c_id" property="cId" jdbcType="INTEGER" />
-    <result column="cate_id" property="cateId" jdbcType="INTEGER" />
+    <result column="u_id" property="uId" jdbcType="INTEGER" />
     <result column="cate_name" property="cateName" jdbcType="VARCHAR" />
-    <result column="blog_count" property="blogCount" jdbcType="TINYINT" />
-    <result column="create_year" property="createYear" jdbcType="DATE" />
+    <result column="blog_count" property="blogCount" jdbcType="INTEGER" />
     <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
   </resultMap>
   <sql id="Base_Column_List" >
-    c_id, cate_id, cate_name, blog_count, create_year, create_date
+    c_id, u_id, cate_name, blog_count,  create_date
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
@@ -18,16 +17,31 @@
     from category
     where c_id = #{cId,jdbcType=INTEGER}
   </select>
+  
+   <select id="selectByuId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from category
+    where u_id = #{uId,jdbcType=INTEGER}
+  </select>
+  <!--是否存在重名  -->
+   <select id="isRepeat" resultMap="BaseResultMap" parameterType="com.lin.model.Category" >
+    select 
+    <include refid="Base_Column_List" />
+    from category
+    where u_id = #{uId,jdbcType=INTEGER} and cate_name = #{cateName,jdbcType=VARCHAR} 
+  </select>
+  
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from category
     where c_id = #{cId,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.lin.model.Category" >
-    insert into category (c_id, cate_id, cate_name, 
-      blog_count, create_year, create_date
+    insert into category (c_id, u_id, cate_name, 
+      blog_count, create_date
       )
-    values (#{cId,jdbcType=INTEGER}, #{cateId,jdbcType=INTEGER}, #{cateName,jdbcType=VARCHAR}, 
-      #{blogCount,jdbcType=TINYINT}, #{createYear,jdbcType=DATE}, #{createDate,jdbcType=TIMESTAMP}
+    values (#{cId,jdbcType=INTEGER}, #{uId,jdbcType=INTEGER}, #{cateName,jdbcType=VARCHAR}, 
+      #{blogCount,jdbcType=INTEGER},  #{createDate,jdbcType=TIMESTAMP}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.lin.model.Category" >
@@ -36,8 +50,8 @@
       <if test="cId != null" >
         c_id,
       </if>
-      <if test="cateId != null" >
-        cate_id,
+      <if test="uId != null" >
+        u_id,
       </if>
       <if test="cateName != null" >
         cate_name,
@@ -45,9 +59,7 @@
       <if test="blogCount != null" >
         blog_count,
       </if>
-      <if test="createYear != null" >
-        create_year,
-      </if>
+     
       <if test="createDate != null" >
         create_date,
       </if>
@@ -56,18 +68,16 @@
       <if test="cId != null" >
         #{cId,jdbcType=INTEGER},
       </if>
-      <if test="cateId != null" >
-        #{cateId,jdbcType=INTEGER},
+      <if test="uId != null" >
+        #{uId,jdbcType=INTEGER},
       </if>
       <if test="cateName != null" >
         #{cateName,jdbcType=VARCHAR},
       </if>
       <if test="blogCount != null" >
-        #{blogCount,jdbcType=TINYINT},
+        #{blogCount,jdbcType=INTEGER},
       </if>
-      <if test="createYear != null" >
-        #{createYear,jdbcType=DATE},
-      </if>
+     
       <if test="createDate != null" >
         #{createDate,jdbcType=TIMESTAMP},
       </if>
@@ -76,18 +86,16 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.lin.model.Category" >
     update category
     <set >
-      <if test="cateId != null" >
-        cate_id = #{cateId,jdbcType=INTEGER},
+      <if test="uId != null and uId !=0" >
+        u_id = #{uId,jdbcType=INTEGER},
       </if>
       <if test="cateName != null" >
         cate_name = #{cateName,jdbcType=VARCHAR},
       </if>
-      <if test="blogCount != null" >
-        blog_count = #{blogCount,jdbcType=TINYINT},
+      <if test="blogCount != null and blogCount !=0" >
+        blog_count = #{blogCount,jdbcType=INTEGER},
       </if>
-      <if test="createYear != null" >
-        create_year = #{createYear,jdbcType=DATE},
-      </if>
+   
       <if test="createDate != null" >
         create_date = #{createDate,jdbcType=TIMESTAMP},
       </if>
@@ -96,10 +104,9 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.lin.model.Category" >
     update category
-    set cate_id = #{cateId,jdbcType=INTEGER},
+    set u_id = #{uId,jdbcType=INTEGER},
       cate_name = #{cateName,jdbcType=VARCHAR},
-      blog_count = #{blogCount,jdbcType=TINYINT},
-      create_year = #{createYear,jdbcType=DATE},
+      blog_count = #{blogCount,jdbcType=INTEGER},
       create_date = #{createDate,jdbcType=TIMESTAMP}
     where c_id = #{cId,jdbcType=INTEGER}
   </update>
